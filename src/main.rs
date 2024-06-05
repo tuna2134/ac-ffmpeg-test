@@ -36,14 +36,14 @@ fn main() -> anyhow::Result<()> {
         .source_sample_rate(codec_params.sample_rate())
         .target_channel_layout(codec_params.channel_layout().to_owned())
         .target_sample_format(codec_params.sample_format())
-        .target_sample_rate(48000)
-        .target_frame_samples(Some(24000))
+        .target_sample_rate(44100)
+        // .target_frame_samples(Some(44100))
         .build()?;
     let mut output = File::create("output.wav")?;
 
     let mut encoder = AudioEncoder::builder("wavpack")?
         .sample_format(codec_params.sample_format())
-        .sample_rate(48000)
+        .sample_rate(44100)
         .channel_layout(codec_params.channel_layout().to_owned())
         .build()?;
 
