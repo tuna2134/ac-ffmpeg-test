@@ -24,7 +24,7 @@ fn main() -> anyhow::Result<()> {
         .ok_or_else(|| anyhow::anyhow!("No audio stream found"))?;
     let codec_params = binding.as_audio_codec_parameters().unwrap();
 
-    let mut decoder = AudioDecoder::from_codec_parameters(&codec_params)?.build()?;
+    let mut decoder = AudioDecoder::from_codec_parameters(codec_params)?.build()?;
 
     let mut resampler = AudioResampler::builder()
         .source_channel_layout(codec_params.channel_layout().to_owned())
