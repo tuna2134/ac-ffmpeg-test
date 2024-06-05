@@ -5,7 +5,7 @@ use ac_ffmpeg::{
     },
     format::{demuxer::Demuxer, muxer::{Muxer, OutputFormat}, io::IO},
 };
-use std::fs::File;
+use std::{fs::File, io::Write};
 
 fn main() -> anyhow::Result<()> {
     let mut wav_file = File::open("tada-81529.mp3")?;
@@ -33,6 +33,7 @@ fn main() -> anyhow::Result<()> {
         .target_channel_layout(codec_params.channel_layout().to_owned())
         .target_sample_format(codec_params.sample_format())
         .target_sample_rate(48000)
+        .target_frame_samples(Some(24000))
         .build()?;
     let mut output = File::create("output.wav")?;
     // let io_output = IO::from_seekable_read_stream(&mut output);
@@ -54,15 +55,11 @@ fn main() -> anyhow::Result<()> {
                 resampler.push(frame)?;
 
                 while let Some(frame) = resampler.take()? {
-                    println!("ok");
                     encoder.push(frame)?;
 
-                    /*
                     while let Some(packet) = encoder.take()? {
-                        println!("oh");
-                        
+                        output.write_all(&packet.data())?;
                     }
-                    */
                 }
             }
         }
