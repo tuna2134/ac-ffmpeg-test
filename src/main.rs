@@ -3,7 +3,7 @@ use ac_ffmpeg::{
         audio::{AudioDecoder, AudioResampler, AudioEncoder},
         Decoder, Encoder
     },
-    format::{demuxer::Demuxer, muxer::{Muxer, OutputFormat}, io::IO},
+    format::{demuxer::Demuxer, io::IO},
 };
 use std::{fs::File, io::Write};
 
