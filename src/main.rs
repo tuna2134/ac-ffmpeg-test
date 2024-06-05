@@ -37,7 +37,7 @@ fn main() -> anyhow::Result<()> {
         .target_channel_layout(codec_params.channel_layout().to_owned())
         .target_sample_format(codec_params.sample_format())
         .target_sample_rate(44100)
-        .target_frame_samples(Some(1024))
+        .target_frame_samples(Some(960))
         .build()?;
     let mut output = File::create("output.wav")?;
 
@@ -67,6 +67,7 @@ fn main() -> anyhow::Result<()> {
     }
     println!("Finished");
     resampler.flush()?;
+    decoder.flush()?;
     encoder.flush()?;
     Ok(())
 }
