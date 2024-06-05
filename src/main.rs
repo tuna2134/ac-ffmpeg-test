@@ -36,10 +36,6 @@ fn main() -> anyhow::Result<()> {
         .target_frame_samples(Some(24000))
         .build()?;
     let mut output = File::create("output.wav")?;
-    // let io_output = IO::from_seekable_read_stream(&mut output);
-    // let mut muxer = Muxer::builder();
-    // muxer.add_stream(&binding)?;
-    // let mut muxer = muxer.build(io_output, OutputFormat::guess_from_file_name("output.wav").unwrap())?;
 
     let mut encoder = AudioEncoder::builder("wavpack")?
         .sample_format(codec_params.sample_format())
@@ -67,6 +63,5 @@ fn main() -> anyhow::Result<()> {
     println!("Finished");
     resampler.flush()?;
     encoder.flush()?;
-    // muxer.flush()?;
     Ok(())
 }
