@@ -5,11 +5,13 @@ use ac_ffmpeg::{
     },
     format::{demuxer::Demuxer, io::IO},
 };
-use std::{fs::File, io::Write};
+use std::{fs::File, io::{Write, Cursor}};
 
 fn main() -> anyhow::Result<()> {
-    let mut wav_file = File::open("tada-81529.mp3")?;
-    let io = IO::from_seekable_read_stream(&mut wav_file);
+    // let mut wav_file = File::open("tada-81529.mp3")?;
+    let data = std::fs::read("tada-81529.mp3")?;
+    let mut voice_data = Cursor::new(data);
+    let io = IO::from_seekable_read_stream(&mut voice_data);
     let mut demuxer = Demuxer::builder()
         .build(io)?
         .find_stream_info(None)
