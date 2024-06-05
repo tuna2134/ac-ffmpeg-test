@@ -5,10 +5,12 @@ use ac_ffmpeg::{
     },
     format::{demuxer::Demuxer, io::IO},
 };
-use std::{fs::File, io::{Write, Cursor}};
+use std::{
+    fs::File,
+    io::{Cursor, Write},
+};
 
 fn main() -> anyhow::Result<()> {
-    // let mut wav_file = File::open("tada-81529.mp3")?;
     let data = std::fs::read("tada-81529.mp3")?;
     let mut voice_data = Cursor::new(data);
     let io = IO::from_seekable_read_stream(&mut voice_data);
@@ -46,18 +48,19 @@ fn main() -> anyhow::Result<()> {
         .build()?;
 
     while let Some(packet) = demuxer.take()? {
-        if packet.stream_index() == index {
-            decoder.push(packet)?;
+        if packet.stream_index() != index {
+            continue;
+        }
+        decoder.push(packet)?;
 
-            while let Some(frame) = decoder.take()? {
-                resampler.push(frame)?;
+        while let Some(frame) = decoder.take()? {
+            resampler.push(frame)?;
 
-                while let Some(frame) = resampler.take()? {
-                    encoder.push(frame)?;
+            while let Some(frame) = resampler.take()? {
+                encoder.push(frame)?;
 
-                    while let Some(packet) = encoder.take()? {
-                        output.write_all(packet.data())?;
-                    }
+                while let Some(packet) = encoder.take()? {
+                    output.write_all(packet.data())?;
                 }
             }
         }
