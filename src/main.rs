@@ -1,9 +1,9 @@
 use ac_ffmpeg::{
     codec::{
-        audio::{AudioDecoder, AudioResampler},
-        Decoder,
+        audio::{AudioDecoder, AudioResampler, AudioEncoder},
+        Decoder, Encoder
     },
-    format::{demuxer::Demuxer, io::IO},
+    format::{demuxer::Demuxer, muxer::{Muxer, OutputFormat}, io::IO},
 };
 use std::fs::File;
 
@@ -35,7 +35,16 @@ fn main() -> anyhow::Result<()> {
         .target_sample_rate(48000)
         .build()?;
     let mut output = File::create("output.wav")?;
-    let _io_output = IO::from_seekable_read_stream(&mut output);
+    // let io_output = IO::from_seekable_read_stream(&mut output);
+    // let mut muxer = Muxer::builder();
+    // muxer.add_stream(&binding)?;
+    // let mut muxer = muxer.build(io_output, OutputFormat::guess_from_file_name("output.wav").unwrap())?;
+
+    let mut encoder = AudioEncoder::builder("wavpack")?
+        .sample_format(codec_params.sample_format())
+        .sample_rate(48000)
+        .channel_layout(codec_params.channel_layout().to_owned())
+        .build()?;
 
     while let Some(packet) = demuxer.take()? {
         if packet.stream_index() == index {
@@ -44,11 +53,23 @@ fn main() -> anyhow::Result<()> {
             while let Some(frame) = decoder.take()? {
                 resampler.push(frame)?;
 
-                while let Some(_frame) = resampler.take()? {}
+                while let Some(frame) = resampler.take()? {
+                    println!("ok");
+                    encoder.push(frame)?;
+
+                    /*
+                    while let Some(packet) = encoder.take()? {
+                        println!("oh");
+                        
+                    }
+                    */
+                }
             }
         }
     }
     println!("Finished");
     resampler.flush()?;
+    encoder.flush()?;
+    // muxer.flush()?;
     Ok(())
 }
