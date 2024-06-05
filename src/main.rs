@@ -1,6 +1,6 @@
 use ac_ffmpeg::{
     codec::{
-        audio::{AudioDecoder, AudioEncoder, AudioResampler},
+        audio::{AudioDecoder, AudioEncoder, AudioResampler, ChannelLayout},
         Decoder, Encoder,
     },
     format::{demuxer::Demuxer, io::IO},
@@ -11,7 +11,7 @@ use std::{
 };
 
 fn main() -> anyhow::Result<()> {
-    let data = std::fs::read("tada-81529.mp3")?;
+    let data = std::fs::read("audio.mp3")?;
     let mut voice_data = Cursor::new(data);
     let io = IO::from_seekable_read_stream(&mut voice_data);
     let mut demuxer = Demuxer::builder()
@@ -34,17 +34,17 @@ fn main() -> anyhow::Result<()> {
         .source_channel_layout(codec_params.channel_layout().to_owned())
         .source_sample_format(codec_params.sample_format())
         .source_sample_rate(codec_params.sample_rate())
-        .target_channel_layout(codec_params.channel_layout().to_owned())
+        .target_channel_layout(ChannelLayout::from_channels(2).unwrap())
         .target_sample_format(codec_params.sample_format())
         .target_sample_rate(44100)
-        .target_frame_samples(Some(960))
+        .target_frame_samples(Some(22050))
         .build()?;
     let mut output = File::create("output.wav")?;
 
     let mut encoder = AudioEncoder::builder("wavpack")?
         .sample_format(codec_params.sample_format())
         .sample_rate(44100)
-        .channel_layout(codec_params.channel_layout().to_owned())
+        .channel_layout(ChannelLayout::from_channels(2).unwrap())
         .build()?;
 
     while let Some(packet) = demuxer.take()? {
