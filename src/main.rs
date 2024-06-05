@@ -1,7 +1,7 @@
 use ac_ffmpeg::{
     codec::{
-        audio::{AudioDecoder, AudioResampler, AudioEncoder},
-        Decoder, Encoder
+        audio::{AudioDecoder, AudioEncoder, AudioResampler},
+        Decoder, Encoder,
     },
     format::{demuxer::Demuxer, io::IO},
 };
@@ -58,7 +58,7 @@ fn main() -> anyhow::Result<()> {
                     encoder.push(frame)?;
 
                     while let Some(packet) = encoder.take()? {
-                        output.write_all(&packet.data())?;
+                        output.write_all(packet.data())?;
                     }
                 }
             }
